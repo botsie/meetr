@@ -7,18 +7,7 @@ import tornado.web
 
 sys.path.append(os.path.join(sys.path[0], "lib")) 
 
-class Routes:
-	"""
-	Understands how to map URLS to Controllers and to Docs
-	"""
-	def initialize(self, routes):
-		pass
-
-	def add(self):
-		pass
-
-	def get(self):
-		pass
+from meetr.controllers import MetricsController
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -41,6 +30,7 @@ GET /1.0/metrics?metric=<metric>&from=<date>&to=<date>&aggregation=sum
 
 application = tornado.web.Application([
     (r"/", MainHandler),
+    (r"/1.0/metrics", MetricsController)
 ])
 
 
