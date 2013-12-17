@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import tornado.web
+import logging
+from meetr.models import MetricsModel
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -26,8 +28,18 @@ class MetricsController(tornado.web.RequestHandler):
 
 	def post(self):
 		"""create a new metric"""
-		self.write("Post!")
+		
+		log = logging.getLogger('tornado.access')
+		log.debug(self.request.uri)
+		log.debug(self.request.arguments)
+
+		data = dict()
+		for arg in ['metric', 'timestamp', 'value']:
+			data[arg] = self.get_argument(arg)
+
+		# TODO: Return appropriate error codes on failure
+		MetricsModel.add(data)
+		self.set_status(200)
 
 	def get(self):
 		"""search for metrics"""
-		self.write("Get!")

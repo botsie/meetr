@@ -4,6 +4,7 @@ import os
 import sys
 import tornado.ioloop
 import tornado.web
+import tornado.options
 
 sys.path.append(os.path.join(sys.path[0], "lib")) 
 
@@ -35,8 +36,9 @@ application = tornado.web.Application([
 
 
 def main():
+    tornado.options.parse_command_line()
     application.listen(8888)
     tornado.ioloop.IOLoop.instance().start()
 
 if __name__ == "__main__":
-	main()
+    main()
