@@ -20,7 +20,19 @@ class MetricsModel(object):
         connection = cql.connect(cluster, 9160,  keyspace, cql_version='3.0.0')
         cursor = connection.cursor()
         cursor.execute(cql_str)
-        return cursor
+        
+        rows = cursor.fetchall()
+        cols = cursor.description
+
+        result = list()
+        for row in rows:
+            result_row = dict()
+            for i in range(len(cols)):
+                result_row[cols[i][0]] = row[i]
+            result.append(result_row)
+
+        return result
+
 
 
     @classmethod
@@ -61,15 +73,22 @@ class MetricsModel(object):
               AND collected_at <= '{2}'
         """
         cql_str = cql_template.format(metric, from_time, to_time)
-        cursor = cls.execute_cql(cql_str)
+        rows = cls.execute_cql(cql_str)
 
-        rows = cursor.fetchall()
+        print rows
 
-        return getattr(cls,aggregation)(rows)
+        return { 
+            'metric': rows[0]['metric'], 
+            'from' : from_time,
+            'to' : to_time,
+            'aggregation' : aggregation,
+            'value': getattr(cls,aggregation)(rows)['metric_value']
+        }
 
     @classmethod
-    def sum(rows):
-        return reduce(lambda x,y : x + y['value'], rows)
+    def sum(cls, rows):
+        f = lambda x,y : { 'metric' : x['metric'], 'metric_value': x['metric_value'] + y['metric_value']}
+        return reduce(f , rows)
 
 
 

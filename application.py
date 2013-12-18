@@ -8,29 +8,11 @@ import tornado.options
 
 sys.path.append(os.path.join(sys.path[0], "lib")) 
 
-from meetr.controllers import MetricsController
-
-
-class MainHandler(tornado.web.RequestHandler):
-    def get(self):
-        self.write("Hello, world")
-
-"""
-REST API:
-
-Create
-
-POST /1.0/metrics
-
-{metric=<metric name>&timestamp=<timestamp>&value=<value>}
-
-Search
-
-GET /1.0/metrics?metric=<metric>&from=<date>&to=<date>&aggregation=sum
-"""
+from meetr.controllers import MetricsController, MainHandler, DebugController
 
 application = tornado.web.Application([
     (r"/", MainHandler),
+    (r"/dbg", DebugController),
     (r"/1.0/metrics", MetricsController)
 ], debug=True)
 

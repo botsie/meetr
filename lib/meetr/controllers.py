@@ -2,11 +2,30 @@
 
 import tornado.web
 import logging
+
 from meetr.models import MetricsModel
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.write("Hello, world")
+
+class DebugController(tornado.web.RequestHandler):
+    def get(self):
+        self.debug_request()
+
+    def post(self):
+        self.debug_request()
+
+    def debug_request(self):
+        
+        str = "{0} {1} {2}".format(self.request.method, self.request.uri, self.request.arguments)
+
+        log = logging.getLogger('tornado.access')
+        log.debug(str)
+        self.write(str)
+        d = self.get_argument('boo', 'error')
+        log.debug(d)
+
 
 """
 REST API:
@@ -20,6 +39,13 @@ POST /1.0/metrics
 Search
 
 GET /1.0/metrics?metric=<metric>&from=<date>&to=<date>&aggregation=sum
+
+Bulk Create
+
+POST /1.0/metrics
+
+{batch=true&metrics=<json>}
+
 """
 
 
@@ -50,5 +76,5 @@ class MetricsController(tornado.web.RequestHandler):
             query[arg] = self.get_argument(arg)
 
         # TODO: Return appropriate error codes on failure
-        MetricsModel.search(query)
+        self.write(MetricsModel.search(query))
         self.set_status(200)
