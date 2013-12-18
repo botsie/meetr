@@ -33,11 +33,8 @@ class MetricsModel(object):
 
         return result
 
-
-
     @classmethod
-    def add(cls, data):
-        """ Class method to add a new metric """
+    def insert_statement(cls, data):
         metric = data['metric']
         timestamp = data['timestamp']
         value = data['value']
@@ -50,8 +47,28 @@ class MetricsModel(object):
             collected_at,
             metric_value
             ) VALUES ('{0}', '{1}', {2});"""
-        cql_str = cql_template.format(metric,timestamp,value)
-        cls.execute_cql(cql_str)
+        return cql_template.format(metric,timestamp,value)
+
+
+
+    @classmethod
+    def add(cls, data):
+        """ Class method to add a new metric """
+        cls.execute_cql(cls.insert_statement(data))
+
+    @classmethod
+    def batch_add(cls, data):
+        """Class method to add a batch of metrics"""
+        statements = list()
+        for row in data:
+            statements.append(cls.insert_statement(row))
+
+        cql_template = """
+        BEGIN BATCH
+            {0}
+        APPLY BATCH;
+        """
+        cls.execute_cql(cql_template.format("\n".join(statements)))
 
 
     @classmethod

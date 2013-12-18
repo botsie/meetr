@@ -2,6 +2,7 @@
 
 import tornado.web
 import logging
+import json
 
 from meetr.models import MetricsModel
 
@@ -58,12 +59,17 @@ class MetricsController(tornado.web.RequestHandler):
         log = logging.getLogger('tornado.access')
         log.debug("%s %s %s" ,self.request.method, self.request.uri, self.request.arguments)
 
-        data = dict()
-        for arg in ['metric', 'timestamp', 'value']:
-            data[arg] = self.get_argument(arg)
+        if 'batch' in self.request.arguments:
+            metrics = json.loads(self.get_argument('metrics'))
+            MetricsModel.batch_add(metrics)
+        else:
+            data = dict()
+            for arg in ['metric', 'timestamp', 'value']:
+                data[arg] = self.get_argument(arg)
 
-        # TODO: Return appropriate error codes on failure
-        MetricsModel.add(data)
+            # TODO: Return appropriate error codes on failure
+            MetricsModel.add(data)
+        
         self.set_status(200)
 
     def get(self):
