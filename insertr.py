@@ -4,6 +4,7 @@ import cql
 import random
 from datetime import datetime
 import pytz
+import tornado.options 
 
 cluster = '127.0.0.1'
 keyspace = 'meetr'

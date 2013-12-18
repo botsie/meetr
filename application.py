@@ -32,7 +32,7 @@ GET /1.0/metrics?metric=<metric>&from=<date>&to=<date>&aggregation=sum
 application = tornado.web.Application([
     (r"/", MainHandler),
     (r"/1.0/metrics", MetricsController)
-])
+], debug=True)
 
 
 def main():

@@ -24,22 +24,31 @@ GET /1.0/metrics?metric=<metric>&from=<date>&to=<date>&aggregation=sum
 
 
 class MetricsController(tornado.web.RequestHandler):
-	"""Controller for '/1.0/metrics'"""
+    """Controller for '/1.0/metrics'"""
 
-	def post(self):
-		"""create a new metric"""
-		
-		log = logging.getLogger('tornado.access')
-		log.debug(self.request.uri)
-		log.debug(self.request.arguments)
+    def post(self):
+        """create a new metric"""
+        
+        log = logging.getLogger('tornado.access')
+        log.debug("%s %s %s" ,self.request.method, self.request.uri, self.request.arguments)
 
-		data = dict()
-		for arg in ['metric', 'timestamp', 'value']:
-			data[arg] = self.get_argument(arg)
+        data = dict()
+        for arg in ['metric', 'timestamp', 'value']:
+            data[arg] = self.get_argument(arg)
 
-		# TODO: Return appropriate error codes on failure
-		MetricsModel.add(data)
-		self.set_status(200)
+        # TODO: Return appropriate error codes on failure
+        MetricsModel.add(data)
+        self.set_status(200)
 
-	def get(self):
-		"""search for metrics"""
+    def get(self):
+        """search for metrics"""
+        log = logging.getLogger('tornado.access')
+        log.debug("%s %s %s" ,self.request.method, self.request.uri, self.request.arguments)
+
+        query = dict()
+        for arg in ['metric', 'to', 'from', 'aggregation']:
+            query[arg] = self.get_argument(arg)
+
+        # TODO: Return appropriate error codes on failure
+        MetricsModel.search(query)
+        self.set_status(200)
