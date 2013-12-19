@@ -30,7 +30,7 @@ class MeetrApplication(object):
         config_file_name = os.path.join(self.CONFIG_PATH, 
             options.environment + ".conf")
 
-        if os.path.exists(config_file_name) and os.access(config_file_name):
+        if os.path.exists(config_file_name) and os.access(config_file_name, os.R_OK):
             tornado.options.parse_config_file(config_file_name)
 
         # reparse command line to allow options configured in the

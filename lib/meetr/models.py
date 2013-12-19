@@ -42,19 +42,19 @@ class MetricsModel(object):
 
     @classmethod
     def insert_statement(cls, data):
-        metric = data['metric']
-        timestamp = data['timestamp']
+        metric_id = data['metric_id']
+        ts = data['ts']
         value = data['value']
 
         utc = pytz.utc
-        timestamp = utc.localize(datetime.strptime(timestamp,MetricsModel.ISO_8601)).strftime(MetricsModel.ISO_8601)
+        ts = utc.localize(datetime.strptime(ts,MetricsModel.ISO_8601)).strftime(MetricsModel.ISO_8601)
 
         cql_template = """INSERT INTO metrics (
-            metric, 
-            collected_at,
-            metric_value
+            metric_id, 
+            ts,
+            value
             ) VALUES ('{0}', '{1}', {2});"""
-        return cql_template.format(metric,timestamp,value)
+        return cql_template.format(metric_id,ts,value)
 
 
 
@@ -92,26 +92,24 @@ class MetricsModel(object):
         cql_template = """
             SELECT *
             FROM metrics
-            WHERE metric = '{0}'
-              AND collected_at >= '{1}'
-              AND collected_at <= '{2}'
+            WHERE metric_id = '{0}'
+              AND ts >= '{1}'
+              AND ts <= '{2}';
         """
         cql_str = cql_template.format(metric, from_time, to_time)
         rows = cls.execute_cql(cql_str)
 
-        print rows
-
         return { 
-            'metric': rows[0]['metric'], 
+            'metric_id': rows[0]['metric_id'], 
             'from' : from_time,
             'to' : to_time,
             'aggregation' : aggregation,
-            'value': getattr(cls,aggregation)(rows)['metric_value']
+            'value': getattr(cls,aggregation)(rows)['value']
         }
 
     @classmethod
     def sum(cls, rows):
-        f = lambda x,y : { 'metric' : x['metric'], 'metric_value': x['metric_value'] + y['metric_value']}
+        f = lambda x,y : { 'metric_id' : x['metric_id'], 'value': x['value'] + y['value']}
         return reduce(f , rows)
 
 

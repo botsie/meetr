@@ -11,10 +11,11 @@ class TestMeetr(unittest.TestCase):
     meetr_url = "http://localhost:8888/1.0/metrics"
 
     def execute_cql(cls, cql_str):
-        cluster = '127.0.0.1'
-        keyspace = 'meetr'
+        cluster = 'localhost'
+        keyspace = 'stats'
+        port = 9160
 
-        connection = cql.connect(cluster, 9160,  keyspace, cql_version='3.0.0')
+        connection = cql.connect(cluster, port,  keyspace, cql_version='3.0.0')
         cursor = connection.cursor()
         cursor.execute(cql_str)
         
@@ -34,33 +35,91 @@ class TestMeetr(unittest.TestCase):
         return result
 
     def setUp(self):
-        cql_str = "DELETE FROM metrics WHERE metric = 'test-metric';"
+        cql_str = "DELETE FROM metrics WHERE metric_id = 'test-metric';"
         self.execute_cql(cql_str)
 
 
-    # def test_single_insert(self):
-    #     pass
+    def test_single_insert(self):
+        test_data = {
+            'metric_id' : 'test-metric',
+            'ts' : "2003-12-18 12:18:18",
+            'value' : 1
+        }
+
+        data = urllib.urlencode(test_data)
+        res = urllib2.urlopen(self.meetr_url, data)
+        self.assertEqual(res.getcode(), 200)
+
+        cql_str = "SELECT * FROM metrics WHERE metric_id = 'test-metric';"
+        rows = self.execute_cql(cql_str)
+        self.assertEqual(len(rows), 1)
+
+    def test_search(self):
+        test_data = [
+            {
+                'metric_id' : 'test-metric',
+                'ts' : "2003-12-18 12:18:18",
+                'value' : 1
+            },
+            {
+                'metric_id' : 'test-metric',
+                'ts' : "2003-12-18 12:18:19",
+                'value' : 1
+            },
+            {
+                'metric_id' : 'test-metric',
+                'ts' : "2003-12-18 12:18:20",
+                'value' : 1
+            },
+            {
+                'metric_id' : 'test-metric',
+                'ts' : "2003-12-18 12:18:21",
+                'value' : 1
+            }
+        ]
+
+        for row in test_data:
+            cql_template = """INSERT INTO metrics (
+                metric_id, 
+                ts,
+                value
+                ) VALUES ('{0}', '{1}', {2});"""
+            cql_str = cql_template.format(row['metric_id'], row['ts'], row['value'])
+            self.execute_cql(cql_str)
+
+        data = urllib.urlencode((
+            ('metric', 'test-metric'),
+            ('from', "2003-12-18 12:18:18+0530"),
+            ('to', "2003-12-18 12:18:21+0530"),
+            ('aggregation', 'sum')
+            ))
+
+        res = urllib2.urlopen(self.meetr_url + '?' + data)
+        result = json.load(res)
+
+        self.assertEqual(result['value'], 4)
+    
 
     def test_bulk_insert(self):
         test_data = [
             {
-                'metric' : 'test-metric',
-                'timestamp' : "2003-12-18 12:18:18",
+                'metric_id' : 'test-metric',
+                'ts' : "2003-12-18 12:18:18",
                 'value' : 1
             },
             {
-                'metric' : 'test-metric',
-                'timestamp' : "2003-12-18 12:18:19",
+                'metric_id' : 'test-metric',
+                'ts' : "2003-12-18 12:18:19",
                 'value' : 1
             },
             {
-                'metric' : 'test-metric',
-                'timestamp' : "2003-12-18 12:18:20",
+                'metric_id' : 'test-metric',
+                'ts' : "2003-12-18 12:18:20",
                 'value' : 1
             },
             {
-                'metric' : 'test-metric',
-                'timestamp' : "2003-12-18 12:18:21",
+                'metric_id' : 'test-metric',
+                'ts' : "2003-12-18 12:18:21",
                 'value' : 1
             }
         ]

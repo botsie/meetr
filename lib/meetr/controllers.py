@@ -35,11 +35,11 @@ Create
 
 POST /1.0/metrics
 
-{metric=<metric name>&timestamp=<timestamp>&value=<value>}
+{metric_id=<metric name>&timestamp=<timestamp>&value=<value>}
 
 Search
 
-GET /1.0/metrics?metric=<metric>&from=<date>&to=<date>&aggregation=sum
+GET /1.0/metrics?metric_id=<metric_id>&from=<date>&to=<date>&aggregation=sum
 
 Bulk Create
 
@@ -64,7 +64,7 @@ class MetricsController(tornado.web.RequestHandler):
             MetricsModel.batch_add(metrics)
         else:
             data = dict()
-            for arg in ['metric', 'timestamp', 'value']:
+            for arg in ['metric_id', 'ts', 'value']:
                 data[arg] = self.get_argument(arg)
 
             # TODO: Return appropriate error codes on failure
