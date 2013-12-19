@@ -21,6 +21,9 @@ class TestMeetr(unittest.TestCase):
         rows = cursor.fetchall()
         cols = cursor.description
 
+        cursor.close()
+        connection.close()
+
         result = list()
         for row in rows:
             result_row = dict()

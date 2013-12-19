@@ -3,6 +3,12 @@
 import cql
 from datetime import datetime
 import pytz
+import tornado.options
+from tornado.options import options
+
+tornado.options.define("cassandra_host", group='Cassandra', default='localhost')
+tornado.options.define("cassandra_keyspace", group='Cassandra', default='meetr')
+tornado.options.define("cassandra_port", group='Cassandra', default=9160)
 
 
 # Why am I using all class methods here? Because I want to communicate that this
@@ -14,10 +20,11 @@ class MetricsModel(object):
 
     @classmethod
     def execute_cql(cls, cql_str):
-        cluster = '127.0.0.1'
-        keyspace = 'meetr'
+        cluster = options.cassandra_host
+        keyspace = options.cassandra_keyspace
+        port = options.cassandra_port
 
-        connection = cql.connect(cluster, 9160,  keyspace, cql_version='3.0.0')
+        connection = cql.connect(cluster, port,  keyspace, cql_version='3.0.0')
         cursor = connection.cursor()
         cursor.execute(cql_str)
         
