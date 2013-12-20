@@ -46,9 +46,6 @@ class MetricsModel(object):
         ts = data['ts']
         value = data['value']
 
-        utc = pytz.utc
-        ts = utc.localize(datetime.strptime(ts,MetricsModel.ISO_8601)).strftime(MetricsModel.ISO_8601)
-
         cql_template = """INSERT INTO metrics (
             metric_id, 
             ts,

@@ -13,20 +13,21 @@ parse_command_line()
 
 cluster = '127.0.0.1'
 port = 9160
-keyspace = 'meetr'
+keyspace = 'stats'
 
 con = cql.connect(cluster, port,  keyspace, cql_version='3.0.0')
 cursor = con.cursor()
 
 
 cql_template = """INSERT INTO metrics (
-    metric, 
-    collected_at,
-    metric_value
+    metric_id, 
+    ts,
+    value
     ) VALUES (:metric_, :collected_at_, :metric_value_);"""
 
 instance_id = "hostname"
 metric = "hostname.bytes_out"
+
 
 utc = pytz.utc
 for c in range(options.count):

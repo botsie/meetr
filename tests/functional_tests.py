@@ -42,7 +42,7 @@ class TestMeetr(unittest.TestCase):
     def test_single_insert(self):
         test_data = {
             'metric_id' : 'test-metric',
-            'ts' : "2003-12-18 12:18:18",
+            'ts' : "2003-12-18 12:18:18+0530",
             'value' : 1
         }
 
@@ -58,22 +58,22 @@ class TestMeetr(unittest.TestCase):
         test_data = [
             {
                 'metric_id' : 'test-metric',
-                'ts' : "2003-12-18 12:18:18",
+                'ts' : "2003-12-18 12:18:18+0530",
                 'value' : 1
             },
             {
                 'metric_id' : 'test-metric',
-                'ts' : "2003-12-18 12:18:19",
+                'ts' : "2003-12-18 12:18:19+0530",
                 'value' : 1
             },
             {
                 'metric_id' : 'test-metric',
-                'ts' : "2003-12-18 12:18:20",
+                'ts' : "2003-12-18 12:18:20+0530",
                 'value' : 1
             },
             {
                 'metric_id' : 'test-metric',
-                'ts' : "2003-12-18 12:18:21",
+                'ts' : "2003-12-18 12:18:21+0530",
                 'value' : 1
             }
         ]
@@ -104,22 +104,22 @@ class TestMeetr(unittest.TestCase):
         test_data = [
             {
                 'metric_id' : 'test-metric',
-                'ts' : "2003-12-18 12:18:18",
+                'ts' : "2003-12-18 12:18:18+0530",
                 'value' : 1
             },
             {
                 'metric_id' : 'test-metric',
-                'ts' : "2003-12-18 12:18:19",
+                'ts' : "2003-12-18 12:18:19+0530",
                 'value' : 1
             },
             {
                 'metric_id' : 'test-metric',
-                'ts' : "2003-12-18 12:18:20",
+                'ts' : "2003-12-18 12:18:20+0530",
                 'value' : 1
             },
             {
                 'metric_id' : 'test-metric',
-                'ts' : "2003-12-18 12:18:21",
+                'ts' : "2003-12-18 12:18:21+0530",
                 'value' : 1
             }
         ]
