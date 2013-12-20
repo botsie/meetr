@@ -1,0 +1,70 @@
+#!/usr/bin/env python
+
+import subprocess
+import os.path
+import os
+import sys
+import logging
+import argparse
+import shlex
+import signal
+import json
+
+"""
+stop-meetr
+
+Script to stop instances of Meetr started with start-meetr
+"""
+
+class StopperApplication(object):
+    """docstring for StopperApplication"""
+
+    def __init__(self):
+        self.set_paths()
+        self.load_config()
+        self.configure_logging()
+
+    def set_paths(self):
+        self.APP_ROOT=os.path.abspath(os.path.join(sys.path[0], ".."))
+        self.PID_FILE=os.path.join(self.APP_ROOT, "pid", "pids.json")
+        self.LOG=os.path.join(self.APP_ROOT, "log", "start_up.log")
+
+    def load_config(self):
+        parser = argparse.ArgumentParser(description="Stop instances of Meetr started with start-meetr")
+        parser.add_argument('--log_level', type=str, default='INFO', metavar='debug|info|warning|error|none')
+
+        self.args = parser.parse_args()
+
+
+    def configure_logging(self):
+        log_format = "[%(asctime)s] [%(levelname)s] - %(message)s"
+        
+        log_level = getattr(logging, self.args.log_level.upper())
+        if not isinstance(log_level, int):
+            raise ValueError('Invalid log level: %s' % loglevel)
+        
+        logging.basicConfig(filename=self.LOG, format=log_format, level=log_level)
+        self.log = logging.getLogger()
+        self.log.addHandler(logging.StreamHandler(sys.stdout))
+
+
+    def run(self):
+        if not os.path.exists(self.PID_FILE):
+            self.log.error("Pid File: " + self.PID_FILE + " doesn't exist! Are you sure you've started meetr?")
+            sys.exit()
+
+        with open(self.PID_FILE, 'r') as f:
+            pids = json.load(f)
+
+        for pid in pids:
+            self.log.info("Killing process " + str(pid))
+            os.kill(pid, signal.SIGTERM)
+
+        os.remove(self.PID_FILE)
+        self.log.info("Shutdown complete.")
+
+
+
+if __name__ == "__main__":
+    app = StopperApplication()
+    app.run()

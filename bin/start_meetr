@@ -1,0 +1,91 @@
+#!/usr/bin/env python
+
+import subprocess
+import os.path
+import os
+import sys
+import logging
+import argparse
+import shlex
+import signal
+import json
+
+"""
+start-meetr
+
+Script to start several instances of Meetr on consecutive ports
+"""
+
+class StarterApplication(object):
+    """docstring for StarterApplication"""
+
+    def __init__(self):
+        self.set_paths()
+        self.load_config()
+        self.configure_logging()
+
+    def set_paths(self):
+        self.APP_ROOT=os.path.abspath(os.path.join(sys.path[0], ".."))
+        self.CONFIG_PATH=os.path.join(self.APP_ROOT, "config")
+        self.APP_PATH=os.path.join(self.APP_ROOT, "application.py")
+        self.PID_FILE=os.path.join(self.APP_ROOT, "pid", "pids.json")
+        self.LOG=os.path.join(self.APP_ROOT, "log", "start_up.log")
+
+    def load_config(self):
+        parser = argparse.ArgumentParser(description='Start several instances of Meetr on consecutive ports')
+        parser.add_argument('--environment', type=str, default='development')
+        parser.add_argument('--process_pool_size', type=int, default=4, help="Number of Meetr instances to run")
+        parser.add_argument('--process_pool_start', type=int, default=7000, help="First port number to use for process pool")
+        parser.add_argument('--log_level', type=str, default='INFO', metavar='debug|info|warning|error|none')
+
+        self.args = parser.parse_args()
+
+
+    def configure_logging(self):
+        log_format = "[%(asctime)s] [%(levelname)s] - %(message)s"
+        
+        log_level = getattr(logging, self.args.log_level.upper())
+        if not isinstance(log_level, int):
+            raise ValueError('Invalid log level: %s' % loglevel)
+        
+        logging.basicConfig(filename=self.LOG, format=log_format, level=log_level)
+        self.log = logging.getLogger()
+        self.log.addHandler(logging.StreamHandler(sys.stdout))
+
+
+    def run(self):
+        if os.path.exists(self.PID_FILE):
+            self.log.error("Pid File: " + self.PID_FILE + " exists! Have you started meetr already?")
+            sys.exit()
+
+        pids = list()
+
+        for n in range(self.args.process_pool_size):
+            port = self.args.process_pool_start + n
+            log_file_prefix = os.path.join(self.APP_ROOT, 'log', 'meetr-on-port-' + str(port) + '.log')
+
+            cmdline = "/usr/bin/env python {0} --environment={1} --port={2} --log_file_prefix={3}"
+            cmdline = cmdline.format(self.APP_PATH, self.args.environment, port, log_file_prefix)
+
+            args = shlex.split(cmdline)
+
+            try:
+                pid = subprocess.Popen(args).pid
+                pids.append(pid)
+                self.log.info("Starting meetr instance " + str(n) + " on port " + str(port))
+            except Exception as e:
+                self.log.error("Failed starting instance " + str(n) + "! Rolling Back!")
+                for pid in pids:
+                    self.log.error("Killing process " + str(pid))
+                    os.kill(pid, signal.SIGTERM)
+                sys.exit(1)
+
+        with open(self.PID_FILE, 'w') as f:
+            json.dump(pids, f)
+
+
+
+if __name__ == "__main__":
+    app = StarterApplication()
+    app.run()
+
