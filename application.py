@@ -5,7 +5,9 @@ import sys
 import tornado.ioloop
 import tornado.web
 import tornado.options
+import logging
 from tornado.options import options
+from pprint import pprint
 
 sys.path.append(os.path.join(sys.path[0], "lib")) 
 
@@ -25,13 +27,13 @@ class MeetrApplication(object):
         self.load_config()
 
     def load_config(self):
-        tornado.options.parse_command_line()
+        tornado.options.parse_command_line(final = False)
 
         config_file_name = os.path.join(self.CONFIG_PATH, 
             options.environment + ".conf")
 
         if os.path.exists(config_file_name) and os.access(config_file_name, os.R_OK):
-            tornado.options.parse_config_file(config_file_name)
+            tornado.options.parse_config_file(config_file_name, final = False)
 
         # reparse command line to allow options configured in the
         # config file to be overridden at the command line.
@@ -44,6 +46,9 @@ class MeetrApplication(object):
             (r"/dbg", DebugController),
             (r"/1.0/metrics", MetricsController)
         ], debug=options.debug)
+
+        log = logging.getLogger('tornado.access')
+        log.info("Meetr Intialised")
 
         application.listen(options.port)
         tornado.ioloop.IOLoop.instance().start()
