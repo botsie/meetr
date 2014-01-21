@@ -48,7 +48,7 @@ class MeetrApplication(object):
         ], debug=options.debug)
 
         log = logging.getLogger('tornado.access')
-        log.info("Meetr Intialised")
+        log.info("Meetr Intialised on port " + str(options.port))
 
         application.listen(options.port)
         tornado.ioloop.IOLoop.instance().start()
