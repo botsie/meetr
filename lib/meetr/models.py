@@ -2,7 +2,6 @@
 
 import cql
 from datetime import datetime
-import pytz
 import tornado.options
 from tornado.options import options
 
