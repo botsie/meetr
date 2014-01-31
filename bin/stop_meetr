@@ -5,10 +5,11 @@ import os.path
 import os
 import sys
 import logging
-import argparse
 import shlex
 import signal
 import json
+
+from optparse import OptionParser
 
 """
 stop-meetr
@@ -30,11 +31,10 @@ class StopperApplication(object):
         self.LOG=os.path.join(self.APP_ROOT, "log", "start_up.log")
 
     def load_config(self):
-        parser = argparse.ArgumentParser(description="Stop instances of Meetr started with start-meetr")
-        parser.add_argument('--log_level', type=str, default='INFO', metavar='debug|info|warning|error|none')
+        parser = OptionParser(usage="Stop instances of Meetr started with start-meetr")
+        parser.add_option('--log_level', type=str, default='INFO', metavar='debug|info|warning|error|none')
 
-        self.args = parser.parse_args()
-
+        (self.args, leftover_args) = parser.parse_args()
 
     def configure_logging(self):
         log_format = "[%(asctime)s] [%(levelname)s] - %(message)s"
