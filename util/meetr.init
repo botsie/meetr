@@ -9,13 +9,18 @@
 
 . /etc/rc.d/init.d/functions
 
+#Variables
+prog="meetr"
+process_pool_start="10001"
+
 source /srv/meetr/shared/python_env/bin/activate
+[ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 
 case "$1" in
     start)
         # Meetr startup
         echo -n "Starting meetr: "
-        python /srv/meetr/current/bin/start_meetr --environment=beta --process_pool_start=10001
+        python /srv/meetr/current/bin/start_meetr --environment=beta --process_pool_start=$process_pool_start
         echo "OK"
         ;;
     stop)
