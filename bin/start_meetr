@@ -5,10 +5,11 @@ import os.path
 import os
 import sys
 import logging
-import argparse
 import shlex
 import signal
 import json
+
+from optparse import OptionParser
 
 """
 start-meetr
@@ -32,14 +33,13 @@ class StarterApplication(object):
         self.LOG=os.path.join(self.APP_ROOT, "log", "start_up.log")
 
     def load_config(self):
-        parser = argparse.ArgumentParser(description='Start several instances of Meetr on consecutive ports')
-        parser.add_argument('--environment', type=str, default='development')
-        parser.add_argument('--process_pool_size', type=int, default=4, help="Number of Meetr instances to run")
-        parser.add_argument('--process_pool_start', type=int, default=7000, help="First port number to use for process pool")
-        parser.add_argument('--log_level', type=str, default='INFO', metavar='debug|info|warning|error|none')
+        parser = OptionParser(usage='Start several instances of Meetr on consecutive ports')
+        parser.add_option('--environment', type="string", default='development')
+        parser.add_option('--process_pool_size', type=int, default=4, help="Number of Meetr instances to run")
+        parser.add_option('--process_pool_start', type=int, default=7000, help="First port number to use for process pool")
+        parser.add_option('--log_level', type=str, default='INFO', metavar='debug|info|warning|error|none')
 
-        self.args = parser.parse_args()
-
+        (self.args, leftover_args) = parser.parse_args()
 
     def configure_logging(self):
         log_format = "[%(asctime)s] [%(levelname)s] - %(message)s"
