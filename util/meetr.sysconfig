@@ -1,1 +1,4 @@
 process_pool_start=10001
+environment="beta"
+process_pool_size="4"
+log_level="INFO"

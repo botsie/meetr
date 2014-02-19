@@ -9,18 +9,23 @@
 
 . /etc/rc.d/init.d/functions
 
-#Variables
+# Variable defaults
 prog="meetr"
 process_pool_start="10001"
+environment="beta"
+process_pool_size="4"
+log_level="INFO"
 
 source /srv/meetr/shared/python_env/bin/activate
+
+# Get variable values from sysconfig file
 [ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 
 case "$1" in
     start)
         # Meetr startup
         echo -n "Starting meetr: "
-        python /srv/meetr/current/bin/start_meetr --environment=beta --process_pool_start=$process_pool_start
+        python /srv/meetr/current/bin/start_meetr --environment=${environment} --process_pool_start=${process_pool_start} --process_pool_size=${process_pool_size} --log_level=${log_level}
         echo "OK"
         ;;
     stop)
